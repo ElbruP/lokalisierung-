@@ -40,24 +40,79 @@ def process_variables():
         messagebox.showerror("Помилка", f"Сталася помилка: {e}")
 
 
+
+def proccess_template():
+    input_text = input_textbox.get("1.0", tk.END).strip()
+
+    if not input_text:
+        ,messagebox.showerror("Помилка", "Встав") 
+        return
+    
+   try:
+        template = """ua-country {{
+c:{text}
+localization_key = ua_country_{text}
+}}"""
+
+        lines = [ line.strip() for line in input_text.splitlines()
+                 if line.strip()]
+        results = []
+
+        for line in lines:
+            results.append(template.format(text=line))
+        output_textbox.delete("1.0", tk.END)
+        output_textbox.insert(tk.END, "\n".join(results))
+   except Exception as e: 
+        messagebox.showerror("Помилка", f"Сталася помилка: {e}")
+
+
 root = tk.Tk()
 root.title("Обробка змінних")
 
-tk.Label(root, text="Введи змінну (кожна з нового рядка, наприклад ua_country: \"abcd\"):").pack(pady=5)
-input_textbox = tk.Text(root, height=10, width=50)
+tk.Label(
+    root,
+    text='Введи текст:'
+).pack(pady=5)
+
+input_textbox = tk.Text(root, height=10, width=60)
 input_textbox.pack(pady=5)
 
 choice_var = tk.StringVar(value='1')
+
 tk.Label(root, text="Що потрібно вивести?").pack(pady=5)
-tk.Radiobutton(root, text="Назва перемінної", variable=choice_var, value='1').pack()
-tk.Radiobutton(root, text="Значення перемінної", variable=choice_var, value='2').pack()
 
-# Кнопка 
-tk.Button(root, text="Обробити", command=process_variables).pack(pady=10)
+tk.Radiobutton(
+    root,
+    text="Назва перемінної",
+    variable=choice_var,
+    value='1'
+).pack()
 
-# результат
+tk.Radiobutton(
+    root,
+    text="Значення перемінної",
+    variable=choice_var,
+    value='2'
+).pack()
+
+
+tk.Button(
+    root,
+    text="Обробити змінні",
+    command=process_variables
+).pack(pady=5)
+
+tk.Button(
+    root,
+    text="Створити шаблон",
+    command=process_template
+).pack(pady=5)
+
+
+# Результат
 tk.Label(root, text="Результат:").pack(pady=5)
-output_textbox = tk.Text(root, height=10, width=50, state=tk.NORMAL)
+
+output_textbox = tk.Text(root, height=15, width=60)
 output_textbox.pack(pady=5)
 
 root.mainloop()
