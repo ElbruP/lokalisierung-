@@ -9,49 +9,22 @@
 <style>
 
 body{
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     margin:20px;
-    background:#f5f5f5;
-}
-
-.container{
-    max-width:1200px;
-    margin:auto;
-}
-
-h1{
-    margin-bottom:20px;
-}
-
-h2{
-    margin-bottom:10px;
-}
-
-textarea,
-input{
-    width:100%;
-    margin-bottom:15px;
-    border:1px solid #ccc;
-    border-radius:5px;
-    box-sizing:border-box;
-    font-size:14px;
-    font-family:Consolas, monospace;
 }
 
 textarea{
-    resize:vertical;
+    width:100%;
+    height:150px;
+    margin-bottom:10px;
 }
 
 .result{
     width:100%;
-    min-height:180px;
-    background:white;
-    border:1px solid #ccc;
-    border-radius:5px;
-    padding:10px;
-    overflow-y:auto;
+    min-height:150px;
+    border:1px solid black;
+    padding:5px;
     white-space:pre-wrap;
-    font-family:Consolas, monospace;
 }
 
 .radio-container{
@@ -60,16 +33,6 @@ textarea{
 
 button{
     margin-bottom:10px;
-    border:none;
-    border-radius:5px;
-    cursor:pointer;
-    font-size:14px;
-}
-
-
-.small-text{
-    color:#666;
-    margin-bottom:10px;
 }
 
 </style>
@@ -77,15 +40,15 @@ button{
 
 <body>
 
-<div class="container">
-
 <h1>
 Обробка змінних + Генератор шаблонів
 </h1>
 
+<!-- ================================= -->
 <!-- СТАРА СИСТЕМА -->
+<!-- ================================= -->
 
-<h2>Стара система обробки змінних</h2>
+<h2>Обробка змінних</h2>
 
 <p>
 Введи перемінну
@@ -98,35 +61,35 @@ button{
 
 <div class="radio-container">
 
-    <input
-        type="radio"
-        id="variableName"
-        name="choice"
-        value="1"
-        checked
-    >
+<input
+    type="radio"
+    id="variableName"
+    name="choice"
+    value="1"
+    checked
+>
 
-    <label for="variableName">
-        Назва перемінної
-    </label>
+<label for="variableName">
+Назва перемінної
+</label>
 
-    <br>
+<br>
 
-    <input
-        type="radio"
-        id="variableValue"
-        name="choice"
-        value="2"
-    >
+<input
+    type="radio"
+    id="variableValue"
+    name="choice"
+    value="2"
+>
 
-    <label for="variableValue">
-        Значення перемінної
-    </label>
+<label for="variableValue">
+Значення перемінної
+</label>
 
 </div>
 
 <button onclick="processVariables()">
-    Обробити змінні
+Обробити змінні
 </button>
 
 <h3>Результат:</h3>
@@ -135,24 +98,26 @@ button{
 
 
 
+<!-- ================================= -->
 <!-- НОВА СИСТЕМА -->
+<!-- ================================= -->
 
 <h2>
 Генератор шаблонів
 </h2>
 
-<div class="small-text">
-Встав шаблон і текст який потрібно замінювати
-</div>
-
-<h3>Шаблон</h3>
+<p>
+Шаблон
+</p>
 
 <textarea id="template">ua-country {
 c:TEXT
 localization_key = ua_country_TEXT
 }</textarea>
 
-<h3>Який текст замінювати</h3>
+<p>
+Який текст замінювати
+</p>
 
 <input
     type="text"
@@ -160,29 +125,27 @@ localization_key = ua_country_TEXT
     value="TEXT"
 >
 
-<h3>Значення</h3>
-
-<div class="small-text">
-Кожне значення з нового рядка
-</div>
+<p>
+Значення
+</p>
 
 <textarea id="templateValues">PRC
 GBR
 HND</textarea>
 
 <button onclick="generateTemplate()">
-    Створити шаблон
+Згенерувати шаблон
 </button>
 
 <button onclick="copyTemplateResult()">
-    Копіювати результат
+Копіювати результат
 </button>
 
-<h3>Результат шаблону</h3>
+<h3>
+Результат шаблону
+</h3>
 
 <div id="templateResult" class="result"></div>
-
-</div>
 
 <script>
 
@@ -254,13 +217,6 @@ function processVariables(){
 
             results.push(
                 variableValue.trim()
-            );
-
-        }
-        else{
-
-            results.push(
-                "Помилка: неправильний вибір."
             );
 
         }
