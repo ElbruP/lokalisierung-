@@ -1,57 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Variable Processor</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background: #f5f5f5;
         }
+
         textarea {
             width: 100%;
-            height: 150px;
+            height: 180px;
             margin-bottom: 10px;
+            padding: 10px;
+            font-size: 14px;
         }
+
         .result {
             width: 100%;
-            height: 150px;
-            background-color: #f9f9f9;
+            min-height: 180px;
+            background-color: white;
             border: 1px solid #ccc;
-            padding: 5px;
+            padding: 10px;
             overflow-y: auto;
+            white-space: pre-wrap;
         }
+
         .radio-container {
             margin: 10px 0;
         }
+
+        button {
+            margin-top: 10px;
+            margin-right: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        h2 {
+            margin-bottom: 5px;
+        }
     </style>
 </head>
+
 <body>
 
 <h2>Обробка змінних</h2>
-<p>Введи перемінну (наприклад ua_country: "abcd"):</p>
+
+<p>
+Введи текст:
+</p>
+
 <textarea id="inputText"></textarea>
 
-
 <p>Що потрібно вивести?</p>
+
 <div class="radio-container">
+
     <input type="radio" id="variableName" name="choice" value="1" checked>
     <label for="variableName">Назва перемінної</label><br>
+
     <input type="radio" id="variableValue" name="choice" value="2">
     <label for="variableValue">Значення перемінної</label>
+
 </div>
 
-<button onclick="processVariables()">Обробити</button>
+<button onclick="processVariables()">
+    Обробити змінні
+</button>
+
+<button onclick="generateTemplate()">
+    Створити шаблон
+</button>
 
 <h3>Результат:</h3>
+
 <div id="result" class="result"></div>
 
 <script>
+
+    // Стара функція
     function processVariables() {
+
         const inputText = document.getElementById("inputText").value.trim();
+
         const resultDiv = document.getElementById("result");
-        resultDiv.innerHTML = ""; // Clear previous results
+
+        resultDiv.innerHTML = "";
 
         if (!inputText) {
             alert("Помилка: Вставне значення");
@@ -59,33 +98,93 @@
         }
 
         const lines = inputText.split("\n");
+
         const results = [];
-        const choice = document.querySelector('input[name="choice"]:checked').value;
+
+        const choice =
+            document.querySelector('input[name="choice"]:checked').value;
 
         lines.forEach(line => {
+
             if (!line.includes(":")) {
-                results.push(`Помилка: '${line}' - неправильний формат`);
+
+                results.push(
+                    `Помилка: '${line}' - неправильний формат`
+                );
+
                 return;
             }
 
-            const match = line.trim().match(/^(.+?):\s*"(.*?)"$/);
+            const match =
+                line.trim().match(/^(.+?):\s*"(.*?)"$/);
+
             if (!match) {
-                results.push(`Помилка: '${line}' - неправильний формат (очікується \`імя: \"значення\"\`)`);
+
+                results.push(
+                    `Помилка: '${line}' - неправильний формат`
+                );
+
                 return;
             }
 
             const [_, variableName, variableValue] = match;
+
             if (choice === '1') {
-                results.push(` ${variableName.trim()}`);
+
+                results.push(variableName.trim());
+
             } else if (choice === '2') {
-                results.push(`${variableValue.trim()}`);
-            } else {
-                results.push("Помилка: неправильний вибір.");
+
+                results.push(variableValue.trim());
+
             }
+
         });
 
-        resultDiv.innerHTML = results.join("<br>");
+        resultDiv.innerHTML = results.join("\n");
     }
+
+
+    // НОВА ФУНКЦІЯ 
+    function generateTemplate() {
+
+        const inputText =
+            document.getElementById("inputText").value.trim();
+
+        const resultDiv =
+            document.getElementById("result");
+
+        resultDiv.innerHTML = "";
+
+        if (!inputText) {
+
+            alert("Помилка: Встав текст");
+
+            return;
+        }
+
+        const lines = inputText
+            .split("\n")
+            .map(line => line.trim())
+            .filter(line => line !== "");
+
+        let result = "";
+
+        lines.forEach(line => {
+
+            result +=
+`ua-country {
+c:${line}
+localization_key = ua_country_${line}
+}
+
+`;
+
+        });
+
+        resultDiv.textContent = result;
+    }
+
 </script>
 
 </body>
