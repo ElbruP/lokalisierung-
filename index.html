@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Universal Template Replacer</title>
+<title>Variable Processor + Template Generator</title>
 
 <style>
 
@@ -12,7 +12,6 @@ body{
     font-family: Arial, sans-serif;
     margin:20px;
     background:#f5f5f5;
-    color:#222;
 }
 
 .container{
@@ -25,67 +24,56 @@ h1{
 }
 
 h2{
-    margin-top:25px;
+    margin-top:30px;
     margin-bottom:10px;
 }
 
 textarea,
 input{
     width:100%;
-    padding:12px;
+    padding:10px;
     margin-bottom:15px;
     border:1px solid #ccc;
-    border-radius:6px;
-    font-size:14px;
+    border-radius:5px;
     box-sizing:border-box;
-    font-family: Consolas, monospace;
+    font-size:14px;
+    font-family:Consolas, monospace;
 }
 
 textarea{
     resize:vertical;
 }
 
-#template{
-    height:220px;
-}
-
-#inputText{
-    height:180px;
-}
-
 .result{
+    width:100%;
+    min-height:180px;
     background:white;
     border:1px solid #ccc;
-    border-radius:6px;
-    padding:15px;
-    min-height:250px;
+    border-radius:5px;
+    padding:10px;
+    overflow-y:auto;
     white-space:pre-wrap;
-    overflow:auto;
-    font-family: Consolas, monospace;
+    font-family:Consolas, monospace;
+}
+
+.radio-container{
+    margin:10px 0;
 }
 
 button{
-    padding:12px 22px;
+    padding:10px 20px;
     margin-right:10px;
     margin-bottom:10px;
     border:none;
-    border-radius:6px;
+    border-radius:5px;
     background:#2d89ef;
     color:white;
     cursor:pointer;
-    font-size:15px;
+    font-size:14px;
 }
 
 button:hover{
     background:#1b5fbf;
-}
-
-.radio-group{
-    margin-bottom:15px;
-}
-
-.radio-group label{
-    margin-right:15px;
 }
 
 .small-text{
@@ -100,161 +88,132 @@ button:hover{
 
 <div class="container">
 
-<h1>Універсальний генератор шаблонів</h1>
+<h1>
+Обробка змінних + Генератор шаблонів
+</h1>
 
-<h2>1. Шаблон</h2>
+<!-- ================================= -->
+<!-- СТАРА СИСТЕМА -->
+<!-- ================================= -->
+
+<h2>Стара система обробки змінних</h2>
+
+<p>
+Введи перемінну
+(наприклад ua_country: "abcd")
+</p>
+
+<textarea id="inputText"></textarea>
+
+<p>Що потрібно вивести?</p>
+
+<div class="radio-container">
+
+    <input
+        type="radio"
+        id="variableName"
+        name="choice"
+        value="1"
+        checked
+    >
+
+    <label for="variableName">
+        Назва перемінної
+    </label>
+
+    <br>
+
+    <input
+        type="radio"
+        id="variableValue"
+        name="choice"
+        value="2"
+    >
+
+    <label for="variableValue">
+        Значення перемінної
+    </label>
+
+</div>
+
+<button onclick="processVariables()">
+    Обробити змінні
+</button>
+
+<h3>Результат:</h3>
+
+<div id="result" class="result"></div>
+
+
+
+<!-- ================================= -->
+<!-- НОВА СИСТЕМА -->
+<!-- ================================= -->
+
+<h2>
+Універсальний генератор шаблонів
+</h2>
 
 <div class="small-text">
-Встав шаблон та напиши текст який потрібно замінювати.
+Встав шаблон і текст який потрібно замінювати
 </div>
+
+<h3>Шаблон</h3>
 
 <textarea id="template">ua-country {
 c:TEXT
 localization_key = ua_country_TEXT
 }</textarea>
 
-<h2>2. Який текст замінювати</h2>
+<h3>Який текст замінювати</h3>
 
-<input type="text" id="replaceText" value="TEXT">
+<input
+    type="text"
+    id="replaceText"
+    value="TEXT"
+>
 
-<h2>3. Значення</h2>
+<h3>Значення</h3>
 
 <div class="small-text">
 Кожне значення з нового рядка
 </div>
 
-<textarea id="inputText">PRC
+<textarea id="templateValues">PRC
 GBR
 HND</textarea>
 
-<h2>4. Обробка змінних</h2>
-
-<div class="small-text">
-Формат:
-<br>
-ua_country: "abcd"
-</div>
-
-<div class="radio-group">
-
-<input
-    type="radio"
-    id="variableName"
-    name="choice"
-    value="1"
-    checked
->
-
-<label for="variableName">
-Назва перемінної
-</label>
-
-<input
-    type="radio"
-    id="variableValue"
-    name="choice"
-    value="2"
->
-
-<label for="variableValue">
-Значення перемінної
-</label>
-
-</div>
-
 <button onclick="generateTemplate()">
-Згенерувати шаблон
+    Згенерувати шаблон
 </button>
 
-<button onclick="processVariables()">
-Обробити змінні
+<button onclick="copyTemplateResult()">
+    Копіювати результат
 </button>
 
-<button onclick="copyResult()">
-Копіювати результат
-</button>
+<h3>Результат шаблону</h3>
 
-<button onclick="clearAll()">
-Очистити
-</button>
-
-<h2>Результат</h2>
-
-<div id="result" class="result"></div>
+<div id="templateResult" class="result"></div>
 
 </div>
 
 <script>
 
-function generateTemplate(){
-
-    const template =
-        document.getElementById("template").value;
-
-    const replaceText =
-        document.getElementById("replaceText").value;
-
-    const inputText =
-        document.getElementById("inputText").value.trim();
-
-    const resultDiv =
-        document.getElementById("result");
-
-    resultDiv.textContent = "";
-
-    if(!template){
-
-        alert("Помилка: встав шаблон");
-
-        return;
-    }
-
-    if(!replaceText){
-
-        alert("Помилка: встав текст для заміни");
-
-        return;
-    }
-
-    if(!inputText){
-
-        alert("Помилка: встав значення");
-
-        return;
-    }
-
-    const lines = inputText
-        .split("\n")
-        .map(line => line.trim())
-        .filter(line => line !== "");
-
-    let result = "";
-
-    lines.forEach(line => {
-
-        const generated =
-            template.replaceAll(replaceText, line);
-
-        result += generated + "\n\n";
-
-    });
-
-    resultDiv.textContent = result;
-}
-
 function processVariables(){
 
     const inputText =
-        document.getElementById("inputText").value.trim();
+        document.getElementById("inputText")
+        .value
+        .trim();
 
     const resultDiv =
         document.getElementById("result");
 
-    resultDiv.textContent = "";
+    resultDiv.innerHTML = "";
 
     if(!inputText){
 
-        alert("Помилка: встав значення");
+        alert("Помилка: Вставне значення");
 
         return;
     }
@@ -280,7 +239,9 @@ function processVariables(){
         }
 
         const match =
-            line.trim().match(/^(.+?):\s*"(.*?)"$/);
+            line.trim().match(
+                /^(.+?):\s*"(.*?)"$/
+            );
 
         if(!match){
 
@@ -292,28 +253,109 @@ function processVariables(){
         }
 
         const variableName = match[1];
+
         const variableValue = match[2];
 
-        if(choice === "1"){
+        if(choice === '1'){
 
-            results.push(variableName.trim());
+            results.push(
+                variableName.trim()
+            );
 
         }
-        else if(choice === "2"){
+        else if(choice === '2'){
 
-            results.push(variableValue.trim());
+            results.push(
+                variableValue.trim()
+            );
+
+        }
+        else{
+
+            results.push(
+                "Помилка: неправильний вибір."
+            );
 
         }
 
     });
 
-    resultDiv.textContent = results.join("\n");
+    resultDiv.innerHTML =
+        results.join("<br>");
 }
 
-function copyResult(){
+
+
+function generateTemplate(){
+
+    const template =
+        document.getElementById("template")
+        .value;
+
+    const replaceText =
+        document.getElementById("replaceText")
+        .value;
+
+    const inputText =
+        document.getElementById("templateValues")
+        .value
+        .trim();
+
+    const resultDiv =
+        document.getElementById("templateResult");
+
+    resultDiv.textContent = "";
+
+    if(!template){
+
+        alert("Встав шаблон");
+
+        return;
+    }
+
+    if(!replaceText){
+
+        alert("Встав текст для заміни");
+
+        return;
+    }
+
+    if(!inputText){
+
+        alert("Встав значення");
+
+        return;
+    }
+
+    const lines = inputText
+        .split("\n")
+        .map(line => line.trim())
+        .filter(line => line !== "");
+
+    let result = "";
+
+    lines.forEach(line => {
+
+        const generated =
+            template.replaceAll(
+                replaceText,
+                line
+            );
+
+        result += generated + "\n\n";
+
+    });
+
+    resultDiv.textContent = result;
+}
+
+
+
+function copyTemplateResult(){
 
     const result =
-        document.getElementById("result").textContent;
+        document.getElementById("templateResult")
+        .textContent;
 
     if(!result){
 
@@ -327,18 +369,8 @@ function copyResult(){
     alert("Результат скопійовано");
 }
 
-function clearAll(){
-
-    document.getElementById("template").value = "";
-
-    document.getElementById("replaceText").value = "";
-
-    document.getElementById("inputText").value = "";
-
-    document.getElementById("result").textContent = "";
-}
-
 </script>
 
 </body>
 </html>
+
