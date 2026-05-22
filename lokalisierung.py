@@ -10,7 +10,7 @@ def process_variables():
     if not input_text:
         messagebox.showerror(
             "Помилка",
-            "Вставне значення"
+            "Встав значення"
         )
         return
 
@@ -201,9 +201,7 @@ title_label.pack(pady=15)
 
 
 
-# ==========================================
 # СТАРА СИСТЕМА
-# ==========================================
 
 old_system_label = tk.Label(
     root,
@@ -308,9 +306,7 @@ output_textbox.pack(pady=5)
 
 
 
-# ==========================================
 # НОВА СИСТЕМА
-# ==========================================
 
 new_system_label = tk.Label(
     root,
