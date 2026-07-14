@@ -81,6 +81,90 @@ def process_variables():
 
 
 
+ukr_last_result = ""
+
+
+def extract_ukrainian_text():
+
+    global ukr_last_result
+
+    input_text = ukr_input_textbox.get("1.0", tk.END)
+
+    if not input_text.strip():
+        messagebox.showerror(
+            "Помилка",
+            "Встав текст"
+        )
+        return
+
+    ukr_regex = re.compile(r'[ІіЇїЄєҐґ]')
+
+    quote_regex = re.compile(r'"([^"]*)"')
+
+    lines = input_text.split("\n")
+
+    rows = []
+
+    for idx, line in enumerate(lines, start=1):
+
+        if line.strip() == "":
+            rows.append((None, None))
+            continue
+
+        found = [
+            m for m in quote_regex.findall(line)
+            if ukr_regex.search(m)
+        ]
+
+        if found:
+            rows.append((idx, " ".join(found)))
+
+    while rows and rows[0][0] is None:
+        rows.pop(0)
+
+    while rows and rows[-1][0] is None:
+        rows.pop()
+
+    ukr_last_result = "\n".join(
+        text for line_no, text in rows if line_no is not None
+    )
+
+    ukr_gutter.config(state="normal")
+    ukr_gutter.delete("1.0", tk.END)
+    ukr_output_textbox.delete("1.0", tk.END)
+
+    for line_no, text in rows:
+
+        if line_no is None:
+            ukr_gutter.insert(tk.END, "\n")
+            ukr_output_textbox.insert(tk.END, "\n")
+        else:
+            ukr_gutter.insert(tk.END, f"{line_no}\n")
+            ukr_output_textbox.insert(tk.END, f"{text}\n")
+
+    ukr_gutter.config(state="disabled")
+
+
+
+def copy_ukrainian_result():
+
+    if not ukr_last_result:
+        messagebox.showwarning(
+            "Увага",
+            "Немає результату"
+        )
+        return
+
+    root.clipboard_clear()
+    root.clipboard_append(ukr_last_result)
+
+    messagebox.showinfo(
+        "Успіх",
+        "Результат скопійовано"
+    )
+
+
+
 def generate_template():
 
     template = template_textbox.get(
@@ -446,6 +530,111 @@ template_output_textbox = tk.Text(
 )
 
 template_output_textbox.pack(pady=5)
+
+
+
+# ВИТЯГ УКРАЇНСЬКОГО ТЕКСТУ
+
+ukr_section_label = tk.Label(
+    root,
+    text="Витяг українського тексту",
+    font=("Arial", 14, "bold"),
+    bg="#f5f5f5"
+)
+
+ukr_section_label.pack(pady=20)
+
+
+
+tk.Label(
+    root,
+    text='Встав текст впереміш з англійською. Знайде рядки, де в лапках "" є український текст',
+    bg="#f5f5f5"
+).pack(pady=5)
+
+
+
+ukr_input_textbox = tk.Text(
+    root,
+    height=10,
+    width=120,
+    font=("Consolas", 11)
+)
+
+ukr_input_textbox.pack(pady=5)
+
+
+
+ukr_button_frame = tk.Frame(
+    root,
+    bg="#f5f5f5"
+)
+
+ukr_button_frame.pack(pady=10)
+
+
+
+tk.Button(
+    ukr_button_frame,
+    text="Обробити",
+    command=extract_ukrainian_text,
+    bg="#2d89ef",
+    fg="white",
+    width=30,
+    height=2
+).pack(side=tk.LEFT, padx=5)
+
+
+
+tk.Button(
+    ukr_button_frame,
+    text="Копіювати результат",
+    command=copy_ukrainian_result,
+    bg="#2d89ef",
+    fg="white",
+    width=30,
+    height=2
+).pack(side=tk.LEFT, padx=5)
+
+
+
+tk.Label(
+    root,
+    text="Результат:",
+    font=("Arial", 12, "bold"),
+    bg="#f5f5f5"
+).pack(pady=5)
+
+
+
+ukr_output_frame = tk.Frame(root)
+
+ukr_output_frame.pack(pady=5)
+
+
+
+ukr_gutter = tk.Text(
+    ukr_output_frame,
+    height=10,
+    width=5,
+    font=("Consolas", 11),
+    bg="#e8e8e8",
+    fg="#888888",
+    state="disabled"
+)
+
+ukr_gutter.pack(side=tk.LEFT, fill=tk.Y)
+
+
+
+ukr_output_textbox = tk.Text(
+    ukr_output_frame,
+    height=10,
+    width=115,
+    font=("Consolas", 11)
+)
+
+ukr_output_textbox.pack(side=tk.LEFT)
 
 
 

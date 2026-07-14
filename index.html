@@ -35,6 +35,12 @@ button{
     margin-bottom:10px;
 }
 
+.line-num{
+    user-select:none;
+    color:#888;
+    margin-right:8px;
+}
+
 </style>
 </head>
 
@@ -145,6 +151,33 @@ HND</textarea>
 </h3>
 
 <div id="templateResult" class="result"></div>
+
+
+
+<!-- ВИТЯГ УКРАЇНСЬКОГО ТЕКСТУ -->
+
+
+<h2>
+Витяг українського тексту
+</h2>
+
+<p>
+Встав текст впереміш з англійською. Рядки де в лапках є український текст
+</p>
+
+<textarea id="ukrInput"></textarea>
+
+<button onclick="extractUkrainianText()">
+Обробити
+</button>
+
+<button onclick="copyUkrainianResult()">
+Копіювати результат
+</button>
+
+<h3>Результат:</h3>
+
+<div id="ukrResult" class="result"></div>
 
 <script>
 
@@ -307,6 +340,99 @@ function copyTemplateResult(){
     }
 
     navigator.clipboard.writeText(result);
+
+    alert("Результат скопійовано");
+}
+
+
+
+let ukrLastResult = "";
+
+
+
+function extractUkrainianText(){
+
+    const inputText =
+        document.getElementById("ukrInput")
+        .value;
+
+    const resultDiv =
+        document.getElementById("ukrResult");
+
+    resultDiv.innerHTML = "";
+
+    if(!inputText.trim()){
+
+        alert("Встав текст");
+
+        return;
+    }
+
+    const ukrRegex = /[ІіЇїЄєҐґ]/;
+
+    const quoteRegex = /"([^"]*)"/g;
+
+    const lines = inputText.split("\n");
+
+    const rows = [];
+
+    lines.forEach((line, idx) => {
+
+        const lineNo = idx + 1;
+
+        if(line.trim() === ""){
+
+            rows.push({ blank: true });
+
+            return;
+        }
+
+        const found = [];
+
+        let m;
+
+        quoteRegex.lastIndex = 0;
+
+        while((m = quoteRegex.exec(line)) !== null){
+
+            if(ukrRegex.test(m[1])) found.push(m[1]);
+        }
+
+        if(found.length){
+
+            rows.push({ line: lineNo, text: found.join(" ") });
+        }
+    });
+
+    while(rows.length && rows[0].blank) rows.shift();
+
+    while(rows.length && rows[rows.length - 1].blank) rows.pop();
+
+    ukrLastResult = rows
+        .filter(r => !r.blank)
+        .map(r => r.text)
+        .join("\n");
+
+    resultDiv.innerHTML = rows
+        .map(r => r.blank
+            ? ""
+            : `<span class="line-num">${r.line}</span>${r.text}`
+        )
+        .join("<br>");
+}
+
+
+
+function copyUkrainianResult(){
+
+    if(!ukrLastResult){
+
+        alert("Немає результату");
+
+        return;
+    }
+
+    navigator.clipboard.writeText(ukrLastResult);
 
     alert("Результат скопійовано");
 }
