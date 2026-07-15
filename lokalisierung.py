@@ -97,7 +97,7 @@ def extract_ukrainian_text():
         )
         return
 
-    ukr_regex = re.compile(r'[ІіЇїЄєҐґ]')
+    ukr_regex = re.compile(r'[Ѐ-ӿ]')
 
     quote_regex = re.compile(r'"([^"]*)"')
 
