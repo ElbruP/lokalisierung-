@@ -31,7 +31,7 @@ def process_variables():
                 continue
 
             match = re.match(
-                r'^(.+?):\s*"(.*?)"$',
+                r'^(.+?):.*?"([^"]*)"\s*$',
                 line.strip()
             )
 
@@ -81,12 +81,14 @@ def process_variables():
 
 
 
-ukr_last_result = ""
+ukr_last_result_no_num = ""
+
+ukr_last_result_with_num = ""
 
 
 def extract_ukrainian_text():
 
-    global ukr_last_result
+    global ukr_last_result_no_num, ukr_last_result_with_num
 
     input_text = ukr_input_textbox.get("1.0", tk.END)
 
@@ -111,13 +113,13 @@ def extract_ukrainian_text():
             rows.append((None, None))
             continue
 
-        found = [
-            m for m in quote_regex.findall(line)
-            if ukr_regex.search(m)
-        ]
+        has_ukrainian = any(
+            ukr_regex.search(m)
+            for m in quote_regex.findall(line)
+        )
 
-        if found:
-            rows.append((idx, " ".join(found)))
+        if has_ukrainian:
+            rows.append((idx, line))
 
     while rows and rows[0][0] is None:
         rows.pop(0)
@@ -125,8 +127,14 @@ def extract_ukrainian_text():
     while rows and rows[-1][0] is None:
         rows.pop()
 
-    ukr_last_result = "\n".join(
-        text for line_no, text in rows if line_no is not None
+    ukr_last_result_no_num = "\n".join(
+        text if line_no is not None else ""
+        for line_no, text in rows
+    )
+
+    ukr_last_result_with_num = "\n".join(
+        f"{line_no} | {text}" if line_no is not None else ""
+        for line_no, text in rows
     )
 
     ukr_gutter.config(state="normal")
@@ -146,9 +154,15 @@ def extract_ukrainian_text():
 
 
 
-def copy_ukrainian_result():
+def copy_ukrainian_result(with_numbers):
 
-    if not ukr_last_result:
+    result = (
+        ukr_last_result_with_num
+        if with_numbers
+        else ukr_last_result_no_num
+    )
+
+    if not result:
         messagebox.showwarning(
             "Увага",
             "Немає результату"
@@ -156,7 +170,7 @@ def copy_ukrainian_result():
         return
 
     root.clipboard_clear()
-    root.clipboard_append(ukr_last_result)
+    root.clipboard_append(result)
 
     messagebox.showinfo(
         "Успіх",
@@ -588,8 +602,20 @@ tk.Button(
 
 tk.Button(
     ukr_button_frame,
-    text="Копіювати результат",
-    command=copy_ukrainian_result,
+    text="Копіювати без номерів",
+    command=lambda: copy_ukrainian_result(False),
+    bg="#2d89ef",
+    fg="white",
+    width=30,
+    height=2
+).pack(side=tk.LEFT, padx=5)
+
+
+
+tk.Button(
+    ukr_button_frame,
+    text="Копіювати з номерами",
+    command=lambda: copy_ukrainian_result(True),
     bg="#2d89ef",
     fg="white",
     width=30,

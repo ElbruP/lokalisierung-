@@ -171,8 +171,12 @@ HND</textarea>
 Обробити
 </button>
 
-<button onclick="copyUkrainianResult()">
-Копіювати результат
+<button onclick="copyUkrainianResult(false)">
+Копіювати без номерів
+</button>
+
+<button onclick="copyUkrainianResult(true)">
+Копіювати з номерами
 </button>
 
 <h3>Результат:</h3>
@@ -222,7 +226,7 @@ function processVariables(){
 
         const match =
             line.trim().match(
-                /^(.+?):\s*"(.*?)"$/
+                /^(.+?):.*?"([^"]*)"\s*$/
             );
 
         if(!match){
@@ -346,7 +350,9 @@ function copyTemplateResult(){
 
 
 
-let ukrLastResult = "";
+let ukrLastResultNoNum = "";
+
+let ukrLastResultWithNum = "";
 
 
 
@@ -387,7 +393,7 @@ function extractUkrainianText(){
             return;
         }
 
-        const found = [];
+        let hasUkrainian = false;
 
         let m;
 
@@ -395,12 +401,15 @@ function extractUkrainianText(){
 
         while((m = quoteRegex.exec(line)) !== null){
 
-            if(ukrRegex.test(m[1])) found.push(m[1]);
+            if(ukrRegex.test(m[1])){
+                hasUkrainian = true;
+                break;
+            }
         }
 
-        if(found.length){
+        if(hasUkrainian){
 
-            rows.push({ line: lineNo, text: found.join(" ") });
+            rows.push({ line: lineNo, text: line });
         }
     });
 
@@ -408,9 +417,12 @@ function extractUkrainianText(){
 
     while(rows.length && rows[rows.length - 1].blank) rows.pop();
 
-    ukrLastResult = rows
-        .filter(r => !r.blank)
-        .map(r => r.text)
+    ukrLastResultNoNum = rows
+        .map(r => r.blank ? "" : r.text)
+        .join("\n");
+
+    ukrLastResultWithNum = rows
+        .map(r => r.blank ? "" : `${r.line} | ${r.text}`)
         .join("\n");
 
     resultDiv.innerHTML = rows
@@ -423,16 +435,20 @@ function extractUkrainianText(){
 
 
 
-function copyUkrainianResult(){
+function copyUkrainianResult(withNumbers){
 
-    if(!ukrLastResult){
+    const result = withNumbers
+        ? ukrLastResultWithNum
+        : ukrLastResultNoNum;
+
+    if(!result){
 
         alert("Немає результату");
 
         return;
     }
 
-    navigator.clipboard.writeText(ukrLastResult);
+    navigator.clipboard.writeText(result);
 
     alert("Результат скопійовано");
 }
