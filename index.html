@@ -142,7 +142,7 @@ HND</textarea>
 Створити шаблон
 </button>
 
-<button onclick="copyTemplateResult()">
+<button onclick="copyTemplateResult(this)">
 Копіювати результат
 </button>
 
@@ -171,11 +171,11 @@ HND</textarea>
 Обробити
 </button>
 
-<button onclick="copyUkrainianResult(false)">
+<button onclick="copyUkrainianResult(false, this)">
 Копіювати без номерів
 </button>
 
-<button onclick="copyUkrainianResult(true)">
+<button onclick="copyUkrainianResult(true, this)">
 Копіювати з номерами
 </button>
 
@@ -199,7 +199,7 @@ function processVariables(){
 
     if(!inputText){
 
-        alert("Помилка: Вставне значення");
+        resultDiv.textContent = "Помилка: Встав значення";
 
         return;
     }
@@ -287,21 +287,21 @@ function generateTemplate(){
 
     if(!template){
 
-        alert("Встав шаблон");
+        resultDiv.textContent = "Встав шаблон";
 
         return;
     }
 
     if(!replaceText){
 
-        alert("Встав текст для заміни");
+        resultDiv.textContent = "Встав текст для заміни";
 
         return;
     }
 
     if(!inputText){
 
-        alert("Встав значення");
+        resultDiv.textContent = "Встав значення";
 
         return;
     }
@@ -330,7 +330,18 @@ function generateTemplate(){
 
 
 
-function copyTemplateResult(){
+function flashButtonText(btn, text){
+
+    const original = btn.textContent;
+
+    btn.textContent = text;
+
+    setTimeout(() => { btn.textContent = original; }, 1200);
+}
+
+
+
+function copyTemplateResult(btn){
 
     const result =
         document.getElementById("templateResult")
@@ -338,14 +349,14 @@ function copyTemplateResult(){
 
     if(!result){
 
-        alert("Немає результату");
+        flashButtonText(btn, "Немає результату");
 
         return;
     }
 
     navigator.clipboard.writeText(result);
 
-    alert("Результат скопійовано");
+    flashButtonText(btn, "Скопійовано");
 }
 
 
@@ -369,7 +380,7 @@ function extractUkrainianText(){
 
     if(!inputText.trim()){
 
-        alert("Встав текст");
+        resultDiv.textContent = "Встав текст";
 
         return;
     }
@@ -435,7 +446,7 @@ function extractUkrainianText(){
 
 
 
-function copyUkrainianResult(withNumbers){
+function copyUkrainianResult(withNumbers, btn){
 
     const result = withNumbers
         ? ukrLastResultWithNum
@@ -443,14 +454,14 @@ function copyUkrainianResult(withNumbers){
 
     if(!result){
 
-        alert("Немає результату");
+        flashButtonText(btn, "Немає результату");
 
         return;
     }
 
     navigator.clipboard.writeText(result);
 
-    alert("Результат скопійовано");
+    flashButtonText(btn, "Скопійовано");
 }
 
 </script>

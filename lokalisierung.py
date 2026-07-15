@@ -1,6 +1,14 @@
 import tkinter as tk
-from tkinter import messagebox
 import re
+
+
+def flash_button(btn, text, duration_ms=1200):
+
+    original = btn.cget("text")
+
+    btn.config(text=text)
+
+    btn.after(duration_ms, lambda: btn.config(text=original))
 
 
 def process_variables():
@@ -8,10 +16,8 @@ def process_variables():
     input_text = input_textbox.get("1.0", tk.END).strip()
 
     if not input_text:
-        messagebox.showerror(
-            "Помилка",
-            "Встав значення"
-        )
+        output_textbox.delete("1.0", tk.END)
+        output_textbox.insert(tk.END, "Помилка: Встав значення")
         return
 
     try:
@@ -74,10 +80,8 @@ def process_variables():
 
     except Exception as e:
 
-        messagebox.showerror(
-            "Помилка",
-            f"Сталася помилка: {e}"
-        )
+        output_textbox.delete("1.0", tk.END)
+        output_textbox.insert(tk.END, f"Сталася помилка: {e}")
 
 
 
@@ -93,10 +97,11 @@ def extract_ukrainian_text():
     input_text = ukr_input_textbox.get("1.0", tk.END)
 
     if not input_text.strip():
-        messagebox.showerror(
-            "Помилка",
-            "Встав текст"
-        )
+        ukr_gutter.config(state="normal")
+        ukr_gutter.delete("1.0", tk.END)
+        ukr_gutter.config(state="disabled")
+        ukr_output_textbox.delete("1.0", tk.END)
+        ukr_output_textbox.insert(tk.END, "Встав текст")
         return
 
     ukr_regex = re.compile(r'[Ѐ-ӿ]')
@@ -154,7 +159,7 @@ def extract_ukrainian_text():
 
 
 
-def copy_ukrainian_result(with_numbers):
+def copy_ukrainian_result(with_numbers, btn):
 
     result = (
         ukr_last_result_with_num
@@ -163,19 +168,13 @@ def copy_ukrainian_result(with_numbers):
     )
 
     if not result:
-        messagebox.showwarning(
-            "Увага",
-            "Немає результату"
-        )
+        flash_button(btn, "Немає результату")
         return
 
     root.clipboard_clear()
     root.clipboard_append(result)
 
-    messagebox.showinfo(
-        "Успіх",
-        "Результат скопійовано"
-    )
+    flash_button(btn, "Скопійовано")
 
 
 
@@ -195,28 +194,22 @@ def generate_template():
 
     if not template:
 
-        messagebox.showerror(
-            "Помилка",
-            "Встав шаблон"
-        )
+        template_output_textbox.delete("1.0", tk.END)
+        template_output_textbox.insert(tk.END, "Встав шаблон")
 
         return
 
     if not replace_text:
 
-        messagebox.showerror(
-            "Помилка",
-            "Встав текст для заміни"
-        )
+        template_output_textbox.delete("1.0", tk.END)
+        template_output_textbox.insert(tk.END, "Встав текст для заміни")
 
         return
 
     if not values_text:
 
-        messagebox.showerror(
-            "Помилка",
-            "Встав значення"
-        )
+        template_output_textbox.delete("1.0", tk.END)
+        template_output_textbox.insert(tk.END, "Встав значення")
 
         return
 
@@ -249,7 +242,7 @@ def generate_template():
 
 
 
-def copy_template_result():
+def copy_template_result(btn):
 
     result = template_output_textbox.get(
         "1.0",
@@ -258,10 +251,7 @@ def copy_template_result():
 
     if not result:
 
-        messagebox.showwarning(
-            "Увага",
-            "Немає результату"
-        )
+        flash_button(btn, "Немає результату")
 
         return
 
@@ -269,10 +259,7 @@ def copy_template_result():
 
     root.clipboard_append(result)
 
-    messagebox.showinfo(
-        "Успіх",
-        "Результат скопійовано"
-    )
+    flash_button(btn, "Скопійовано")
 
 
 
@@ -515,15 +502,17 @@ tk.Button(
 
 
 
-tk.Button(
+copy_template_btn = tk.Button(
     button_frame,
     text="Копіювати результат",
-    command=copy_template_result,
+    command=lambda: copy_template_result(copy_template_btn),
     bg="#2d89ef",
     fg="white",
     width=30,
     height=2
-).pack(side=tk.LEFT, padx=5)
+)
+
+copy_template_btn.pack(side=tk.LEFT, padx=5)
 
 
 
@@ -600,27 +589,31 @@ tk.Button(
 
 
 
-tk.Button(
+ukr_copy_no_num_btn = tk.Button(
     ukr_button_frame,
     text="Копіювати без номерів",
-    command=lambda: copy_ukrainian_result(False),
+    command=lambda: copy_ukrainian_result(False, ukr_copy_no_num_btn),
     bg="#2d89ef",
     fg="white",
     width=30,
     height=2
-).pack(side=tk.LEFT, padx=5)
+)
+
+ukr_copy_no_num_btn.pack(side=tk.LEFT, padx=5)
 
 
 
-tk.Button(
+ukr_copy_with_num_btn = tk.Button(
     ukr_button_frame,
     text="Копіювати з номерами",
-    command=lambda: copy_ukrainian_result(True),
+    command=lambda: copy_ukrainian_result(True, ukr_copy_with_num_btn),
     bg="#2d89ef",
     fg="white",
     width=30,
     height=2
-).pack(side=tk.LEFT, padx=5)
+)
+
+ukr_copy_with_num_btn.pack(side=tk.LEFT, padx=5)
 
 
 
